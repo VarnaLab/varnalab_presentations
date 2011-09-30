@@ -1,0 +1,40 @@
+<div class="page">
+	<h1>4.3. Singleton Pattern</h1>
+	<h2>Възможността, да бъдат достъпвани методите и променливи на клас, като се използва само една иинстанция, без да може да се създаде втори обект от съовтетният, singleton клас</h2>
+	<pre>
+		var Single = {
+			name: "product name",
+			getInfo: function() {
+				return this.name;
+			}
+		};
+	</pre>
+	<pre>
+		var Single;
+		var SingleClass = function() {
+			if(typeof Single != "undefined") {
+				return Single
+			}
+			var _index = 0;
+			var increment = function() {
+				_index += 1;
+			};
+			var getIndex = function() {
+				return _index;
+			};
+			Single = {
+				increment: increment,
+				getIndex: getIndex
+			};
+			return Single;
+		
+		};
+		
+		var a = new SingleClass();
+		var b = new SingleClass();
+		a.increment();
+		a.increment();
+		a.getIndex(); // 2
+		b.getIndex(); // 2
+	</pre>
+</div>

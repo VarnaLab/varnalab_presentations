@@ -1,0 +1,62 @@
+<div class="page">
+	<h1>4.14. Function chaining pattern</h1>
+	<pre>
+		var Module = function() {
+			
+			var _self = this;
+			
+			this.delay = function(time) {
+				...
+				return this;
+			};
+			this.echo = function(str) {
+				console.log("echo=" + str);
+				return this;
+			};
+			
+		};
+		
+		var m = new Module();
+		m.echo("first").echo("second").delay(1000).delay(1000).echo("third").delay(1500).echo("fourth");
+	</pre>
+	<pre>
+		var Module = function() {
+			
+			var _self = this;
+			
+			this.delay = function(time) {
+				var copy = {},
+					i;
+				for(i in this) {
+					var _selfDelay = this;
+					if(typeof _selfDelay[i] == "function") {
+						copy[i] = function() {
+							var args = [],
+								j;
+							for(j=0; j &lt; arguments.length; j++) {
+								args.push(arguments[j]);
+							}
+							setTimeout(
+								function() { 
+									_selfDelay[i].apply(copy, args); 
+								},
+								time
+							);
+							return copy;
+						};
+					}
+				}
+				copy.delay = this.delay;
+				return copy;
+			};
+			this.echo = function(str) {
+				console.log("echo=" + str);
+				return this;
+			};
+			
+		};
+		
+		var m = new Module();
+		m.echo("first").echo("second").delay(1000).delay(1000).echo("third").delay(1500).echo("fourth");
+	</pre>
+</div>

@@ -1,0 +1,26 @@
+<div class="page">
+	<h1>4.8. Command Pattern</h1>
+	- използваме обект(class), който съдържа извикването на даден метод<br /> 
+	- ясно разделение на кода, изпълняващ дадена операция, и неговото извикване
+	<pre>
+		var Calculator = {
+			add: function(x, y) {
+				return x+y;
+			},
+			substract: function(x, y) {
+				return x-y;
+			},
+			multiply: function(x, y) {
+				return x*y;
+			},
+			divide: function(x, y) {
+				return x/y;
+			}
+		};
+		Calculator.calc = function(command) {
+			return Calculator[command.type](command.opl, command.op2);
+		};
+		Calculator.calc({type: "add", opl:1, op2:1});
+		Calculator.calc({type: "Substract", opl:6, op2:2});
+	</pre>
+</div>

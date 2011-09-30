@@ -1,0 +1,30 @@
+<div class="page">
+	<h1>3.4. Наследяване</h1>
+	<pre>
+		function extend(Child, Parent) {
+			var F = function(){};
+			F.prototype = Parent.prototype;
+			Child.prototype = new F();
+			Child.prototype.constructor = Child;
+			Child.uber = Parent.prototype;
+		}
+	</pre>
+	<pre>
+		var Shape = function() {
+			this.name = "shape";
+		};
+		Shape.prototype = {
+			getName:function() {
+				return this.name;
+			}
+		};
+		var Rect = function () {
+			this.name = "rect";
+		};
+		extend(Rect, Shape);
+		
+		var s = new Shape();
+		var r = new Rect();
+	</pre>
+	<img src="pics/inheritance.jpg"/>
+</div>

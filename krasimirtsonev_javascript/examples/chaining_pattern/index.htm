@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="imagetoolbar" content="no" />
+		<meta name="author" content="" />
+		<meta name="copyright" content="" />
+		<meta name="robots" content="follow,index" />
+		
+		<meta name="keywords" content="" lang="en-us" />
+		<meta name="description" content="" />
+		<title>JavaScript Presentation</title>
+		
+		<script type="text/javascript" language="javascript">
+			
+			var Module = function() {
+				
+				var _self = this;
+				
+				this.delay = function(time) {
+					var copy = {},
+						i;
+					for(i in this) {
+						var _selfDelay = this;
+						if(typeof _selfDelay[i] == "function") {
+							copy[i] = function() {
+								var args = [],
+									j;
+								for(j=0; j < arguments.length; j++) {
+									args.push(arguments[j]);
+								}
+								setTimeout(
+									function() { 
+										_selfDelay[i].apply(copy, args); 
+									},
+									time
+								);
+								return copy;
+							};
+						}
+					}
+					copy.delay = this.delay;
+					return copy;
+				};
+				this.echo = function(str) {
+					console.log("echo=" + str);
+					return this;
+				};
+				
+			};
+			
+			var m = new Module();
+			m.echo("first").echo("second").delay(1000).delay(1000).echo("third").delay(1500).echo("fourth");
+			
+			
+		</script>
+		
+	</head>
+	<body>
+		
+	</body>
+</html>

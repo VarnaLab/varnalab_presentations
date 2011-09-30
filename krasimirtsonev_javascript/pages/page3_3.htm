@@ -1,0 +1,100 @@
+<div class="page">
+	<h1>3.3. Класове (public/private методи и променливи)</h1>
+	<h2>Дефиниране</h2>
+	<pre>
+		var Products = function() {
+			
+		};
+		var Cart = function(username, password) {
+			
+		};
+	</pre>
+	<h2>Променливи</h2>
+	<pre>
+		var Products = function() {
+			// private
+			var _items = [];
+			// public
+			this.orderStatus = "paid";
+		};
+		Products.prototype = {
+			orderStatus: "paid"
+		};
+	</pre>
+	<h2>Методи</h2>
+	<pre>
+		var Products = function() {
+			// private
+			function checkStatus() {
+				...
+			}
+			// public
+			this.getItems = function() {
+				...
+			}
+		};
+		Products.prototype = {
+			getItems: function() {
+				...
+			}
+		};
+	</pre>
+	<h2>Инициализация</h2>
+	<pre>
+		var p = new Products();
+		/*
+			p.orderStatus
+			p.getItems
+		*/
+	</pre>
+	<h2>Примери</h2>
+	<pre>
+		var Cart = function() {
+			
+			var _items = [];
+			
+			this.addItem = function(item) {
+				_items.push(item);
+			};
+			this.isEmpty = function() {
+				return _items.length == 0 ? true : false;
+			};
+		
+		};
+	</pre>
+	<pre>
+		var Cart = function() {
+			
+			var _items = [];
+			
+			function addItem(item) {
+				_items.push(item);
+			};
+			function isEmpty() {
+				return _items.length == 0 ? true : false;
+			};
+			
+			return {
+				addItem:addItem,
+				isEmpty:isEmpty
+			};
+		
+		};
+	</pre>
+	<pre>
+		var Cart = function() {
+			
+			// var _items = [];
+			this.items = [];
+		
+		};
+		Cart.prototype = {
+			addItem:function(item) {
+				this.items.push(item);
+			},
+			isEmpty:function() {
+				return items.length == 0 ? true : false;
+			}
+		}
+	</pre>
+</div>

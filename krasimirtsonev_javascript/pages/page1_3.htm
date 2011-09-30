@@ -1,0 +1,28 @@
+<div class="page">
+	<h1>1.3. Вмъкване посредством ajax и eval()</h1>
+	<pre>
+		$(document).ready(function() {
+			$.ajax({
+				url: "./module.js",
+				success: function(result){
+					var module = eval(result);
+					module.getTitle();
+				}
+			});
+		});
+		
+		
+		// module.js
+		(function(){
+			
+			var title = "The module !!!";
+			
+			return {
+				getTitle: function() {
+					alert(title);
+				}
+			};
+			
+		})();
+	</pre>
+</div>
