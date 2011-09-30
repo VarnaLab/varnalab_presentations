@@ -1,0 +1,20 @@
+{
+  "author": " <obiwonn@gmail.com>",
+  "name": "liveforum",
+  "version": "0.0.0",
+  "repository": {
+    "url": ""
+  },
+  "main": "./app.js",
+  "scripts": {
+    "test": "vows ./test/*.js"
+  },
+  "engines": {
+    "node": "v0.4.9"
+  },
+  "dependencies": {
+	"socketstream": "= 0.1.8",
+	"coffee-script": "= 1.1.1"
+  },
+  "devDependencies": {}
+}
