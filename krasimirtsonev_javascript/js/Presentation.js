@@ -6,49 +6,32 @@ var Presentation = (function(win) {
 	var _currentPageIndex = 0;
 	var _currentPageSlidesIndex = -1;
 	
-	function setCurrentText(str) {
-		if(!str) {
-			var text = (_currentPageIndex + 1)+ " of " + _pages.length + " (" + _currentPage.url + ")";
-			if(_currentPage && _currentPage.slides) {
-				var numOfSlides = _currentPage.slides.length;
-				var bullets = "";
-				for(var i=-1; i<numOfSlides; i++) {
-					if(i == _currentPageSlidesIndex) {
-						bullets += "<a href='javascript:Presentation.showSlide(" + i + ");' class='bullet-current'>&#149;</a>";
-					} else {
-						bullets += "<a href='javascript:Presentation.showSlide(" + i + ");' class='bullet'>&#149;</a>";
-					}
+	// toolbar
+	function toolbarInit() {
+		$("#jump-value").keyup(toolbarJumpFieldChange);
+		$("#toolbarNextPage").click(toolbarNextPage);
+		$("#toolbarPreviousPage").click(toolbarPreviousPage);
+		$("#toolbarNextPage-slide").click(toolbarNextSlide);
+		$("#toolbarPreviousPage-slide").click(toolbarPreviousSlide);
+	}
+	function toolbarSetText() {
+		var text = (_currentPageIndex + 1)+ " of " + _pages.length + " (" + _currentPage.url + ")";
+		if(_currentPage && _currentPage.slides) {
+			var numOfSlides = _currentPage.slides.length;
+			var bullets = "";
+			for(var i=-1; i<numOfSlides; i++) {
+				if(i == _currentPageSlidesIndex) {
+					bullets += "<a href='javascript:Presentation.slidesShow(" + i + ");' class='bullet-current'>&#149;</a>";
+				} else {
+					bullets += "<a href='javascript:Presentation.slidesShow(" + i + ");' class='bullet'>&#149;</a>";
 				}
-				text = bullets + " | " + text;
 			}
-			$("#current").html(text);
-			$("#jump-value").val(_currentPageIndex + 1);
-		} else {
-			$("#current").text(str);
+			text = bullets + " | " + text;
 		}
+		$("#current").html(text);
+		$("#jump-value").val(_currentPageIndex + 1);		
 	};
-	function loadPage() {
-		_currentPage = _pages[_currentPageIndex];
-		if(_currentPage.url && _currentPage.url != "") {
-			$.ajax({
-				url: "pages/" + _currentPage.url + "?r=" + Math.floor(Math.random()*10000),
-				success: function(result){
-					_currentPageSlidesIndex = -1;
-					addPageContent(result);
-					runSyntaxHighlighting();
-					hideAllSlides();
-					showHideSlidesNav();
-					$.address.value(_currentPageIndex);
-				}
-			});
-			setCurrentText();
-		}
-	};
-	function addPageContent(str) {
-		$("#pagesHolder").empty();
-		$("#pagesHolder").append($(str));
-	};
-	function onJumpFieldChange() {
+	function toolbarJumpFieldChange() {
 		var newValue = parseInt($("#jump-value").val());
 		newValue -= 1;
 		if(newValue != undefined) {
@@ -58,100 +41,120 @@ var Presentation = (function(win) {
 			}
 		}
 	};
-	function next() {
+	function toolbarNextPage() {
 		if(_currentPageIndex + 1 < _pages.length) {
 			_currentPageIndex = _currentPageIndex + 1;
 			loadPage();
 		}		
 	}
-	function previous() {
+	function toolbarPreviousPage() {
 		if(_currentPageIndex - 1 >= 0) {
 			_currentPageIndex = _currentPageIndex - 1;
 			loadPage();
 		}
 	}
-	function nextSlide() {
+	function toolbarNextSlide() {
 		if(_currentPage.slides && _currentPage.slides.length > 0) {
 			_currentPageSlidesIndex = _currentPageSlidesIndex + 1 < _currentPage.slides.length ? _currentPageSlidesIndex + 1 : _currentPageSlidesIndex;
-			showSlide();
+			slidesShow();
 		}
 	};
-	function previousSlide() {
+	function toolbarPreviousSlide() {
 		if(_currentPage.slides && _currentPage.slides.length > 0) {
 			_currentPageSlidesIndex = _currentPageSlidesIndex - 1 >= -1 ? _currentPageSlidesIndex - 1 : 0;
-			showSlide();			
+			slidesShow();			
 		}
 	};
-	function showSlide(index) {
+	function toolbarShowSlidesNav() {
+		var numOfSlides = _currentPage.slides ? _currentPage.slides.length : 0;
+		if(numOfSlides > 0) {
+			$(".slides-title").fadeTo(100, 1);
+			$("#toolbarNextPage-slide").fadeTo(100, 1);
+			$("#toolbarPreviousPage-slide").fadeTo(100, 1);
+		} else {
+			$(".slides-title").fadeTo(100, 0.2);
+			$("#toolbarNextPage-slide").fadeTo(100, 0.2);
+			$("#toolbarPreviousPage-slide").fadeTo(100, 0.2);
+		}
+	}
+	
+	// page
+	function loadPage() {
+		_currentPage = _pages[_currentPageIndex];
+		if(_currentPage.url && _currentPage.url != "") {
+			$.ajax({
+				url: "pages/" + _currentPage.url + "?r=" + Math.floor(Math.random()*10000),
+				success: function(result) {
+					$("#pagesHolder").empty();
+					$("#pagesHolder").append($(result));
+					_currentPageSlidesIndex = -1;
+					runSyntaxHighlighting();
+					slidesHide();
+					toolbarShowSlidesNav();
+					addressUpdate();
+				}
+			});
+			toolbarSetText();
+		}
+	};
+	function slidesShow(index) {
 		if(typeof index != "undefined") {
 			_currentPageSlidesIndex = index;
 		}
-		hideAllSlides();
+		slidesHide();
 		if(_currentPage.slides[_currentPageSlidesIndex]) {
 			$(_currentPage.slides[_currentPageSlidesIndex]).css("display", "block");
 		}
-		setCurrentText();
+		toolbarSetText();
 	}
-	function hideAllSlides() {
+	function slidesHide() {
 		var numOfSlides = _currentPage.slides ? _currentPage.slides.length : 0;
 		for(var i = 0; i<numOfSlides; i++) {
 			$(_currentPage.slides[i]).css("display", "none");
 		}
 	};
-	function showHideSlidesNav() {
-		var numOfSlides = _currentPage.slides ? _currentPage.slides.length : 0;
-		if(numOfSlides > 0) {
-			$(".slides-title").fadeTo(100, 1);
-			$("#next-slide").fadeTo(100, 1);
-			$("#previous-slide").fadeTo(100, 1);
-		} else {
-			$(".slides-title").fadeTo(100, 0.2);
-			$("#next-slide").fadeTo(100, 0.2);
-			$("#previous-slide").fadeTo(100, 0.2);
-		}
-	}
+	
+	// syntaxhighlighting
 	function runSyntaxHighlighting() {
-		// http://www.steamdev.com/snippet/
-		//$("pre").snippet("javascript", {style:"peachpuff", collapse:true});
 		$("pre").snippet("javascript", {style:"darkness", collapse:true});
 	};
-	function onKeyDown(e) {
+	
+	// keyboard events
+	function keyboardEventsInit() {
+		$(document).keydown(keyboardEventsDown);
+	}
+	function keyboardEventsDown(e) {
 		if(e.which == 37) { // left
-			previous();
+			toolbarPreviousPage();
 		}
 		if(e.which == 39) { // right
-			next();
+			toolbarNextPage();
 		}
 		if(e.which == 38) { // up
-			nextSlide();
+			toolbarNextSlide();
 		}
 		if(e.which == 40) { // down
-			previousSlide();
+			toolbarPreviousSlide();
 		}
 	};
-	function pages() {
-		return _pages;
-	};
 	
-	win.onload = function() {
+	// address
+	function addressCheck() {
 		if($.address.value() != "" && $.address.value() != "/") {
 			_currentPageIndex = $.address.value();
 			_currentPageIndex = _currentPageIndex.replace("/", "");
 			_currentPageIndex = parseInt(_currentPageIndex);
 		}
-		loadPage();
-		$("#jump-value").keyup(onJumpFieldChange);
-		$("#next").click(next);
-		$("#previous").click(previous);
-		$("#next-slide").click(nextSlide);
-		$("#previous-slide").click(previousSlide);
-		$("#reload").click(loadPage);
-		$(document).keydown(onKeyDown);
-	};
+	}
+	function addressUpdate() {
+		$.address.value(_currentPageIndex);
+	}
 	
-	return {
-		pages: pages(),
-		showSlide: showSlide
+	win.onload = function() {
+		toolbarInit();
+		keyboardEventsInit();
+		addressCheck();
+		loadPage();
 	};
 	
 }(window));
