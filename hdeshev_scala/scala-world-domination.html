@@ -1,0 +1,1712 @@
+<!DOCTYPE html>
+<!--
+  Copyright 2010 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Original slides: Marcin Wichary (mwichary@google.com)
+  Modifications: Ernest Delgado (ernestd@google.com)
+                 Alex Russell (slightlyoff@chromium.org)
+
+  landslide modifications: Adam Zapletal (adamzap@gmail.com)
+                           Nicolas Perriault (nperriault@gmail.com)
+-->
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Световна доминация със Scala<br/>Христо Дешев - @hdeshev</title>
+    <!-- Styles -->
+    
+    <style type="text/css" media="print">
+      * {
+    margin: 0;
+    padding: 0;
+}
+@page {
+    size: landscape;
+}
+body {
+    font: 100% "Lucida Grande", "Trebuchet MS", Verdana, sans-serif;
+    padding: 0;
+    margin: 0;
+}
+div.slide {
+    min-width: 800px;
+    min-height: 600px;
+    padding: 1em;
+    overflow: hidden;
+    page-break-after: always;
+    border: 1px solid black;
+    border-radius: 20px;
+}
+div.slide div.inner {
+    width: 800px;
+    height: 600px;
+    margin: auto;
+    display: table-cell;
+}
+h1 {
+    font-size: 2.4em;
+}
+h2 {
+    font-size: 1.4em;
+}
+h3 {
+    margin: 1em 0;
+}
+ul {
+    margin: 0;
+    padding: 0;
+}
+p, li, pre {
+    margin: 1em 0;
+}
+li {
+    margin-left: 2em;
+}
+a {
+    color: #000000;
+}
+pre, code {
+    max-width: 800px;
+    background: #eee;
+    font-family: Monaco, monospace;
+    font-size: 90%;
+}
+pre {
+    padding: .2em .5em;
+    overflow: hidden;
+    border-radius: .8em;
+}
+code {
+    padding: 0 .2em;
+}
+.slide header:only-child h1 {
+  line-height: 180%;
+  text-align: center;
+  display: table-cell;
+  vertical-align: middle;
+  height: 600px;
+  width: 800px;
+  font-size: 48px;
+  margin-top:100px;
+  margin-bottom:100px;
+}
+#toc, #help, .slide aside, .slide footer, .slide .notes {
+  display: none;
+}
+
+    </style>
+    <style type="text/css" media="screen, projection">
+      body {
+  font: 14px "Lucida Grande", "Trebuchet MS", Verdana, sans-serif;
+  background: #778;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+div.presentation {
+  position: absolute;
+  width: 100%;
+  display: table-cell;
+  vertical-align: middle;
+  height: 100%;
+  background: inherit;
+}
+
+div.slides {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  left: 0;
+  top: 0;
+  position: absolute;
+  display: block;
+  -webkit-transition: -webkit-transform 1s ease-in-out;
+  -moz-transition: -moz-transform 1s ease-in-out;
+  -o-transition: -o-transform 1s ease-in-out;
+}
+
+div.slide {
+  display: none;
+  position: absolute;
+  overflow: hidden;
+  width: 900px;
+  height: 700px;
+  left: 50%;
+  top: 50%;
+  margin-top: -350px;
+  background: -webkit-gradient(linear, left bottom, left top, from(#bbd), to(#fff));
+  background-color: #eee;
+  background: -moz-linear-gradient(bottom, #bbd, #fff);
+  -webkit-transition: margin 0.25s ease-in-out;
+  -moz-transition: margin 0.25s ease-in-out;
+  -o-transition: margin 0.25s ease-in-out;
+  border-top-left-radius: 20px;
+  -moz-border-radius-topleft: 20px;
+  -webkit-border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  -moz-border-radius-topright: 20px;
+  -webkit-border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+  -moz-border-radius-bottomright: 20px;
+  -webkit-border-bottom-right-radius: 20px;
+  border-bottom-left-radius: 20px;
+  -moz-border-radius-bottomleft: 20px;
+  -webkit-border-bottom-left-radius: 20px;
+}
+
+div.slide p {
+  font-size: 20px;
+}
+
+.slide.far-past {
+  display: block;
+  margin-left: -2400px;
+}
+
+.slide.past {
+  display: block;
+  margin-left: -1400px;
+}
+
+.slide.current {
+  display: block;
+  margin-left: -450px;
+}
+
+.slide.future {
+  display: block;
+  margin-left: 500px;
+}
+
+.slide.far-future {
+  display: block;
+  margin-left: 1500px;
+}
+
+body.three-d div.slides {
+  -webkit-transform: translateX(50px) scale(0.8) rotateY(10deg);
+  -moz-transform: translateX(50px) scale(0.8) rotateY(10deg);
+  -o-transform: translateX(50px) scale(0.8) rotateY(10deg);
+}
+
+
+/* Content */
+
+header:not(:only-child) {
+  font-family: 'Lucida Grande';
+  font-weight: normal;
+  font-size: 50px;
+  letter-spacing: -.05em;
+  color: white;
+  color: black;
+  text-shadow: rgba(0, 0, 0, 0.2) 0 2px 5px;
+  position: absolute;
+  left: 30px;
+  top: 25px;
+  margin: 0;
+  padding: 0;
+}
+
+header h1, header h2 {
+  display: inline;
+  font-size: 100%;
+  font-weight: normal;
+  padding: 0;
+  margin: 0;
+}
+
+header h2:first-child {
+  margin-top: 0;
+}
+
+section, .slide header:only-child h1 {
+  font-family: 'Lucida Grande';
+  color: #3f3f3f;
+  text-shadow: rgba(0, 0, 0, 0.2) 0 2px 5px;
+  margin-left: 30px;
+  margin-right: 30px;
+  margin-top: 100px;
+  display: block;
+  overflow: hidden;
+}
+
+a {
+  color: inherit;
+  display: inline-block;
+  text-decoration: none;
+  line-height: 110%;
+  border-bottom: 2px solid #3f3f3f;
+}
+
+pre {
+  font-size: 16px;
+  font-family: Monaco, Courier, monospace;
+}
+
+li {
+  padding: 10px 0;
+  font-size: 20px;
+}
+
+.slide header:only-child h1 {
+  line-height: 180%;
+  text-align: center;
+  display: table-cell;
+  vertical-align: middle;
+  height: 700px;
+  width: 900px;
+  font-size: 50px;
+  margin-top:100px;
+  margin-bottom:100px;
+}
+
+.sidebar {
+  background: -webkit-gradient(linear, top right, bottom right, from(#dde), to(#fff));
+  -webkit-transition: margin 0.25s ease-in-out;
+  background-color: #eee;
+  background: -moz-linear-gradient(right, #dde, #fff);
+  border-right: 5px solid #ccd;
+  z-index: 9999999;
+  height: 100%;
+  overflow: hidden;
+  top: 0;
+  position: absolute;
+  display: block;
+  margin: 0;
+  margin-left: -400px;
+  padding: 10px 16px;
+  overflow: auto;
+  -webkit-transition: margin 0.2s ease-in-out;
+  -moz-transition: margin 0.2s ease-in-out;
+  -o-transition: margin 0.2s ease-in-out;
+}
+
+.sidebar h2 {
+  text-shadow: rgba(0, 0, 0, 0.2) 0 2px 5px;
+  margin: 0 0 16px;
+  padding: 0;
+}
+
+.sidebar table {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border-collapse: collapse;
+}
+
+.sidebar table caption {
+  display: none;
+}
+
+.sidebar tr {
+  margin: 2px 0;
+  border-bottom: 1px solid #ccc;
+}
+
+.sidebar th {
+  text-align: left;
+  font-weight: normal;
+  max-width: 300px;
+  overflow: hidden;
+}
+
+.sidebar tr.sub th {
+  text-indent: 20px;
+}
+
+.sidebar td {
+  text-align: right;
+  min-width: 20px;
+}
+
+.sidebar a {
+  display: block;
+  text-decoration: none;
+  border-bottom: none;
+  padding: 4px 0;
+}
+
+.sidebar tr.active {
+  background: #ff0;
+}
+
+aside {
+  display: none;
+}
+  aside.source {
+    position: absolute;
+    bottom: 6px;
+    left: 10px;
+    text-indent: 10px;
+  }
+  aside.page_number {
+    position: absolute;
+    bottom: 6px;
+    right: 10px;
+    text-indent: 10px;
+  }
+
+.notes {
+  display: none;
+  padding: 10px;
+  background: #ccc;
+  border-radius: 10px;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+}
+  div.slide p.notes {
+    font-size: 90%;
+}
+
+/* Pygments default theme */
+.hll { background-color: #ffffcc }
+.c { color: #408080; font-style: italic } /* Comment */
+.err { border: 1px solid #FF0000 } /* Error */
+.k { color: #008000; font-weight: bold } /* Keyword */
+.o { color: #666666 } /* Operator */
+.cm { color: #408080; font-style: italic } /* Comment.Multiline */
+.cp { color: #BC7A00 } /* Comment.Preproc */
+.c1 { color: #408080; font-style: italic } /* Comment.Single */
+.cs { color: #408080; font-style: italic } /* Comment.Special */
+.gd { color: #A00000 } /* Generic.Deleted */
+.ge { font-style: italic } /* Generic.Emph */
+.gr { color: #FF0000 } /* Generic.Error */
+.gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.gi { color: #00A000 } /* Generic.Inserted */
+.go { color: #808080 } /* Generic.Output */
+.gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.gs { font-weight: bold } /* Generic.Strong */
+.gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.gt { color: #0040D0 } /* Generic.Traceback */
+.kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.kp { color: #008000 } /* Keyword.Pseudo */
+.kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.kt { color: #B00040 } /* Keyword.Type */
+.m { color: #666666 } /* Literal.Number */
+.s { color: #BA2121 } /* Literal.String */
+.na { color: #7D9029 } /* Name.Attribute */
+.nb { color: #008000 } /* Name.Builtin */
+.nc { color: #0000FF; font-weight: bold } /* Name.Class */
+.no { color: #880000 } /* Name.Constant */
+.nd { color: #AA22FF } /* Name.Decorator */
+.ni { color: #999999; font-weight: bold } /* Name.Entity */
+.ne { color: #D2413A; font-weight: bold } /* Name.Exception */
+.nf { color: #0000FF } /* Name.Function */
+.nl { color: #A0A000 } /* Name.Label */
+.nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+.nt { color: #008000; font-weight: bold } /* Name.Tag */
+.nv { color: #19177C } /* Name.Variable */
+.ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+.w { color: #bbbbbb } /* Text.Whitespace */
+.mf { color: #666666 } /* Literal.Number.Float */
+.mh { color: #666666 } /* Literal.Number.Hex */
+.mi { color: #666666 } /* Literal.Number.Integer */
+.mo { color: #666666 } /* Literal.Number.Oct */
+.sb { color: #BA2121 } /* Literal.String.Backtick */
+.sc { color: #BA2121 } /* Literal.String.Char */
+.sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.s2 { color: #BA2121 } /* Literal.String.Double */
+.se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
+.sh { color: #BA2121 } /* Literal.String.Heredoc */
+.si { color: #BB6688; font-weight: bold } /* Literal.String.Interpol */
+.sx { color: #008000 } /* Literal.String.Other */
+.sr { color: #BB6688 } /* Literal.String.Regex */
+.s1 { color: #BA2121 } /* Literal.String.Single */
+.ss { color: #19177C } /* Literal.String.Symbol */
+.bp { color: #008000 } /* Name.Builtin.Pseudo */
+.vc { color: #19177C } /* Name.Variable.Class */
+.vg { color: #19177C } /* Name.Variable.Global */
+.vi { color: #19177C } /* Name.Variable.Instance */
+.il { color: #666666 } /* Literal.Number.Integer.Long */
+
+    </style>
+    
+    <!-- /Styles -->
+    <!-- Javascripts -->
+    
+    <script>
+      function main() {
+  // Since we don't have the fallback of attachEvent and
+  // other IE only stuff we won't try to run JS for IE.
+  // It will run though when using Google Chrome Frame
+  if (document.all) { return; }
+
+  var currentSlideNo;
+  var notesOn = false;
+  var slides = document.getElementsByClassName('slide');
+  var touchStartX = 0;
+  var spaces = /\s+/, a1 = [""];
+  var tocOpened = false;
+  var helpOpened = false;
+
+  var str2array = function(s) {
+    if (typeof s == "string" || s instanceof String) {
+      if (s.indexOf(" ") < 0) {
+        a1[0] = s;
+        return a1;
+      } else {
+        return s.split(spaces);
+      }
+    }
+    return s;
+  };
+
+  var trim = function(str) {
+    return str.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+  };
+
+  var addClass = function(node, classStr) {
+    classStr = str2array(classStr);
+    var cls = " " + node.className + " ";
+    for (var i = 0, len = classStr.length, c; i < len; ++i) {
+      c = classStr[i];
+      if (c && cls.indexOf(" " + c + " ") < 0) {
+        cls += c + " ";
+      }
+    }
+    node.className = trim(cls);
+  };
+
+  var removeClass = function(node, classStr) {
+    var cls;
+    if (classStr !== undefined) {
+      classStr = str2array(classStr);
+      cls = " " + node.className + " ";
+      for (var i = 0, len = classStr.length; i < len; ++i) {
+        cls = cls.replace(" " + classStr[i] + " ", " ");
+      }
+      cls = trim(cls);
+    } else {
+      cls = "";
+    }
+    if (node.className != cls) {
+      node.className = cls;
+    }
+  };
+
+  var getSlideEl = function(slideNo) {
+    if (slideNo > 0) {
+      return slides[slideNo - 1];
+    } else {
+      return null;
+    }
+  };
+
+  var getSlideTitle = function(slideNo) {
+    var el = getSlideEl(slideNo);
+    if (el) {
+      var headers = el.getElementsByTagName('header');
+      if (headers.length > 0) {
+        return el.getElementsByTagName('header')[0].innerText;
+      }
+    }
+    return null;
+  };
+
+  var changeSlideElClass = function(slideNo, className) {
+    var el = getSlideEl(slideNo);
+    if (el) {
+      removeClass(el, 'far-past past current future far-future');
+      addClass(el, className);
+    }
+  };
+
+  var updateSlideClasses = function() {
+    window.location.hash = "slide" + currentSlideNo;
+
+    for (var i=1; i<currentSlideNo-1; i++) {
+      changeSlideElClass(i, 'far-past');
+    }
+
+    changeSlideElClass(currentSlideNo - 1, 'past');
+    changeSlideElClass(currentSlideNo, 'current');
+    changeSlideElClass(currentSlideNo + 1, 'future');
+
+    for (var i=currentSlideNo+2; i<slides.length+1; i++) {
+      changeSlideElClass(i, 'far-future');
+    }
+
+    highlightCurrentTocLink();
+
+    document.getElementsByTagName('title')[0].innerText = getSlideTitle(currentSlideNo);
+  };
+
+  var highlightCurrentTocLink = function() {
+    var tocRows = document.getElementById('toc').getElementsByTagName('tr');
+    for (var i=0; i<tocRows.length; i++) {
+      removeClass(tocRows.item(i), 'active');
+    }
+
+    var currentTocRow = document.getElementById('toc-row-' + currentSlideNo);
+    if (currentTocRow) {
+      addClass(currentTocRow, 'active');
+    }
+  }
+
+  var nextSlide = function() {
+    if (currentSlideNo < slides.length) {
+      currentSlideNo++;
+    }
+    updateSlideClasses();
+  };
+
+  var prevSlide = function() {
+    if (currentSlideNo > 1) {
+      currentSlideNo--;
+    }
+    updateSlideClasses();
+  };
+
+  var showNotes = function() {
+    var notes = getSlideEl(currentSlideNo).getElementsByClassName('notes');
+    for (var i = 0, len = notes.length; i < len; i++) {
+      notes.item(i).style.display = (notesOn) ? 'none':'block';
+    }
+    notesOn = (notesOn) ? false : true;
+  };
+
+  var showSlideNumbers = function() {
+    var asides = document.getElementsByClassName('page_number');
+    var hidden = asides[0].style.display != 'block';
+    for (var i = 0; i < asides.length; i++) {
+      asides.item(i).style.display = hidden ? 'block' : 'none';
+    }
+  };
+
+  var showSlideSources = function() {
+    var asides = document.getElementsByClassName('source');
+    var hidden = asides[0].style.display != 'block';
+    for (var i = 0; i < asides.length; i++) {
+      asides.item(i).style.display = hidden ? 'block' : 'none';
+    }
+  };
+
+  var showToc = function() {
+    if (helpOpened) {
+        showHelp();
+    }
+
+    var toc = document.getElementById('toc');
+
+    toc.style.marginLeft = tocOpened ? '-400px' : '0px';
+
+    tocOpened = !tocOpened;
+  };
+
+  var showHelp = function() {
+    var help = document.getElementById('help');
+
+    help.style.marginLeft = helpOpened ? '-400px' : '0px';
+
+    helpOpened = !helpOpened;
+  };
+
+  var switch3D = function() {
+    if (document.body.className.indexOf('three-d') == -1) {
+      document.getElementsByClassName('presentation')[0].style.webkitPerspective = '1000px';
+      document.body.className += ' three-d';
+    } else {
+      window.setTimeout("document.getElementsByClassName('presentation')[0].style.webkitPerspective = '0';", 2000);
+      document.body.className = document.body.className.replace(/three-d/, '');
+    }
+  };
+
+  var handleBodyKeyDown = function(event) {
+    switch (event.keyCode) {
+      case 37: // left arrow
+        prevSlide();
+        break;
+      case 39: // right arrow
+      case 32: // space
+        nextSlide();
+        break;
+      case 50: // 2
+        showNotes();
+        break;
+      case 51: // 3
+        switch3D();
+        break;
+      case 72: // h
+        showHelp();
+        break;
+      case 78: // n
+        showSlideNumbers();
+        break;
+      case 83: // s
+        showSlideSources();
+        break;
+      case 84: // t
+        showToc();
+        break;
+    }
+  };
+
+  var handleWheel = function(event) {
+    if (tocOpened || helpOpened) {
+      return;
+    }
+
+    var delta = 0;
+
+    if (!event) {
+      event = window.event;
+    }
+
+    if (event.wheelDelta) {
+      delta = event.wheelDelta/120;
+      if (window.opera) delta = -delta;
+    } else if (event.detail) {
+      delta = -event.detail/3;
+    }
+
+    if (delta && delta <0) {
+      nextSlide();
+    } else if (delta) {
+      prevSlide();
+    }
+  };
+
+  var addTouchListeners = function() {
+    document.addEventListener('touchstart', function(e) {
+      touchStartX = e.touches[0].pageX;
+    }, false);
+    document.addEventListener('touchend', function(e) {
+      var pixelsMoved = touchStartX - e.changedTouches[0].pageX;
+      var SWIPE_SIZE = 150;
+      if (pixelsMoved > SWIPE_SIZE) {
+        nextSlide();
+      }
+      else if (pixelsMoved < -SWIPE_SIZE) {
+       prevSlide();
+      }
+    }, false);
+  };
+
+  var addTocLinksListeners = function() {
+    var tocLinks = document.getElementById('toc').getElementsByTagName('a');
+    for (var i=0; i < tocLinks.length; i++) {
+      tocLinks.item(i).addEventListener('click', function(e) {
+        currentSlideNo = Number(this.attributes['href'].value.replace('#slide', ''));
+        updateSlideClasses();
+        return false;
+      }, true);
+    }
+  };
+
+  // initialize
+
+  (function() {
+    if (window.location.hash != "") {
+      currentSlideNo = Number(window.location.hash.replace('#slide', ''));
+    } else {
+      currentSlideNo = 1;
+    }
+
+    document.addEventListener('keydown', handleBodyKeyDown, false);
+    document.addEventListener('DOMMouseScroll', handleWheel, false);
+    window.onmousewheel = document.onmousewheel = handleWheel
+
+    var els = slides;
+    for (var i = 0, el; el = els[i]; i++) {
+      addClass(el, 'slide far-future');
+    }
+    updateSlideClasses();
+
+    // add support for finger events (filter it by property detection?)
+    addTouchListeners();
+
+    addTocLinksListeners();
+  })();
+};
+
+    </script>
+    
+    <!-- /Javascripts -->
+</head>
+<body>
+  <div class="presentation">
+    <div class="slides">
+      
+      <!-- slide source: scala-world-domination.md -->
+      <div class="slide">
+        <div class="inner">
+          
+          <header><h1>Световна доминация със Scala<br/>Христо Дешев - @hdeshev</h1></header>
+          
+          
+        </div>
+        <footer>
+          
+          <aside class="source">
+            Source: <a href="file:///home/hristo/w/scala-world-domination/scala-world-domination.md">scala-world-domination.md</a>
+          </aside>
+          
+          <aside class="page_number">
+            1/24
+          </aside>
+        </footer>
+      </div>
+      
+      <!-- slide source: scala-world-domination.md -->
+      <div class="slide">
+        <div class="inner">
+          
+          <header><h1>Кратка история на езика</h1></header>
+          
+          
+          <section><ul>
+<li>1995 и нататък - Мартин Одерски е един от създателите на Pizza - функционален език, който се компилира до Java байткод. Това води до проекта GJ и по-късно до интегрирането на generics в новите версии на Java.</li>
+<li>Одерски започва да работи по Scala през 2001 и първата версия излиза през 2003.</li>
+<li>2004 - Scala за .NET</li>
+<li>2006 - Scala 2.0</li>
+<li>2010 - Scala 2.8</li>
+<li>Сега - Scala 2.9</li>
+</ul></section>
+          
+        </div>
+        <footer>
+          
+          <aside class="source">
+            Source: <a href="file:///home/hristo/w/scala-world-domination/scala-world-domination.md">scala-world-domination.md</a>
+          </aside>
+          
+          <aside class="page_number">
+            2/24
+          </aside>
+        </footer>
+      </div>
+      
+      <!-- slide source: scala-world-domination.md -->
+      <div class="slide">
+        <div class="inner">
+          
+          <header><h1>Защо Scala?</h1></header>
+          
+          
+          <section><ul>
+<li>Компактен - с малко код казваме много. Висока продуктивност.</li>
+<li>Продуктивни сме от самото начало.</li>
+<li>Мощен - въпреки повърхностната прилика с Java, езикът предлага много повече.</li>
+<li>Добра стандартна библиотека.</li>
+<li>Достъп до огромно количество Java код.</li>
+</ul></section>
+          
+        </div>
+        <footer>
+          
+          <aside class="source">
+            Source: <a href="file:///home/hristo/w/scala-world-domination/scala-world-domination.md">scala-world-domination.md</a>
+          </aside>
+          
+          <aside class="page_number">
+            3/24
+          </aside>
+        </footer>
+      </div>
+      
+      <!-- slide source: scala-world-domination.md -->
+      <div class="slide has_code">
+        <div class="inner">
+          
+          <header><h1>Автоматично разпознаване на типовете</h1></header>
+          
+          
+          <section><p>Няма нужда да се повтаряме:</p>
+<p><strong>Java</strong></p>
+<div class="highlight"><pre><span class="lineno">1</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Integer</span><span class="o">&gt;</span> <span class="n">m</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Integer</span><span class="o">&gt;();</span>
+</pre></div>
+
+<p><strong>Scala</strong></p>
+<div class="highlight"><pre><span class="lineno">1</span> <span class="k">val</span> <span class="n">m</span> <span class="k">=</span> <span class="nc">Map</span><span class="o">(</span><span class="s">&quot;one&quot;</span> <span class="o">-&gt;</span> <span class="mi">1</span><span class="o">,</span> <span class="s">&quot;two&quot;</span> <span class="o">-&gt;</span> <span class="mi">2</span><span class="o">)</span>
+</pre></div>
+
+<p>Въпреки краткият запис, това все още е език със статични типове, проверявани от компилатора.</p>
+<h2>Пишем код бързо както в някой динамичен език.</h2>
+<h2>Получаваме всичките предимства на статичните езици.</h2></section>
+          
+        </div>
+        <footer>
+          
+          <aside class="source">
+            Source: <a href="file:///home/hristo/w/scala-world-domination/scala-world-domination.md">scala-world-domination.md</a>
+          </aside>
+          
+          <aside class="page_number">
+            4/24
+          </aside>
+        </footer>
+      </div>
+      
+      <!-- slide source: scala-world-domination.md -->
+      <div class="slide">
+        <div class="inner">
+          
+          <header><h1>Истински обектен език</h1></header>
+          
+          
+          <section><ul>
+<li>няма примитиви, които да не са обекти.</li>
+<li>Всеки наследява от Any</li>
+<li>Имаме познатите класове за описание на функционалност,</li>
+<li>Много механизми за бързо дефиниране на нови типове,</li>
+<li>лесни singleton обекти.</li>
+<li>и traits!</li>
+</ul></section>
+          
+        </div>
+        <footer>
+          
+          <aside class="source">
+            Source: <a href="file:///home/hristo/w/scala-world-domination/scala-world-domination.md">scala-world-domination.md</a>
+          </aside>
+          
+          <aside class="page_number">
+            5/24
+          </aside>
+        </footer>
+      </div>
+      
+      <!-- slide source: scala-world-domination.md -->
+      <div class="slide has_code">
+        <div class="inner">
+          
+          <header><h1>Класове</h1></header>
+          
+          
+          <section><p>Java стил:</p>
+<div class="highlight"><pre><span class="lineno">1</span> <span class="k">class</span> <span class="nc">Account1</span><span class="o">(</span><span class="n">aName</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">anEmail</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span> <span class="o">{</span>
+<span class="lineno">2</span>   <span class="k">val</span> <span class="n">name</span> <span class="k">=</span> <span class="n">aName</span>
+<span class="lineno">3</span>   <span class="k">val</span> <span class="n">email</span> <span class="k">=</span> <span class="n">anEmail</span>
+<span class="lineno">4</span> <span class="o">}</span>
+<span class="lineno">5</span> <span class="k">val</span> <span class="n">a1</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">Account1</span><span class="o">(</span><span class="s">&quot;John&quot;</span><span class="o">,</span> <span class="s">&quot;john@example.com&quot;</span><span class="o">)</span>
+</pre></div>
+
+<p>Малко по-добре:</p>
+<div class="highlight"><pre><span class="lineno">1</span> <span class="k">class</span> <span class="nc">Account2</span><span class="o">(</span><span class="k">val</span> <span class="n">name</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="k">val</span> <span class="n">email</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span>
+<span class="lineno">2</span> <span class="k">val</span> <span class="n">a2</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">Account2</span><span class="o">(</span><span class="s">&quot;John&quot;</span><span class="o">,</span> <span class="s">&quot;john@example.com&quot;</span><span class="o">)</span>
+</pre></div>
+
+<p>И още по-добре:</p>
+<div class="highlight"><pre><span class="lineno">1</span> <span class="k">case</span> <span class="k">class</span> <span class="nc">Account3</span><span class="o">(</span><span class="n">name</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">email</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span>
+<span class="lineno">2</span> <span class="k">val</span> <span class="n">a3</span> <span class="k">=</span> <span class="nc">Account3</span><span class="o">(</span><span class="s">&quot;John&quot;</span><span class="o">,</span> <span class="s">&quot;john@example.com&quot;</span><span class="o">)</span>
+</pre></div>
+</section>
+          
+        </div>
+        <footer>
+          
+          <aside class="source">
+            Source: <a href="file:///home/hristo/w/scala-world-domination/scala-world-domination.md">scala-world-domination.md</a>
+          </aside>
+          
+          <aside class="page_number">
+            6/24
+          </aside>
+        </footer>
+      </div>
+      
+      <!-- slide source: scala-world-domination.md -->
+      <div class="slide has_code">
+        <div class="inner">
+          
+          <header><h1>Методи</h1></header>
+          
+          
+          <section><p>Напълно описани параметри и върнат тип</p>
+<div class="highlight"><pre><span class="lineno">1</span> <span class="k">def</span> <span class="n">validateEmail</span><span class="o">(</span><span class="n">email</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span><span class="k">:</span> <span class="kt">Unit</span> <span class="o">=</span> <span class="o">{</span>
+<span class="lineno">2</span>   <span class="k">if</span> <span class="o">(</span><span class="n">emailValid</span><span class="o">(</span><span class="n">email</span><span class="o">))</span>
+<span class="lineno">3</span>     <span class="k">throw</span> <span class="k">new</span> <span class="nc">IllegalArgumentException</span><span class="o">(</span><span class="s">&quot;Eek! Email empty!&quot;</span><span class="o">)</span>
+<span class="lineno">4</span> <span class="o">}</span>
+</pre></div>
+
+<p>Връщаме нищо (Unit)? Може и по-кратко</p>
+<div class="highlight"><pre><span class="lineno">1</span> <span class="k">def</span> <span class="n">validate</span> <span class="o">{</span>
+<span class="lineno">2</span>   <span class="n">validateEmail</span><span class="o">(</span><span class="n">email</span><span class="o">)</span>
+<span class="lineno">3</span> <span class="o">}</span>
+</pre></div>
+
+<p>Автоматично познаваме върнатия тип (Boolean)</p>
+<div class="highlight"><pre><span class="lineno">1</span> <span class="k">def</span> <span class="n">emailValid</span><span class="o">(</span><span class="n">email</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span> <span class="k">=</span> <span class="o">{</span>
+<span class="lineno">2</span>   <span class="n">email</span> <span class="o">!=</span> <span class="s">&quot;&quot;</span>
+<span class="lineno">3</span> <span class="o">}</span>
+</pre></div>
+</section>
+          
+        </div>
+        <footer>
+          
+          <aside class="source">
+            Source: <a href="file:///home/hristo/w/scala-world-domination/scala-world-domination.md">scala-world-domination.md</a>
+          </aside>
+          
+          <aside class="page_number">
+            7/24
+          </aside>
+        </footer>
+      </div>
+      
+      <!-- slide source: scala-world-domination.md -->
+      <div class="slide has_code">
+        <div class="inner">
+          
+          <header><h1>Свойства (Properties)</h1></header>
+          
+          
+          <section><p><strong>Java стил</strong></p>
+<div class="highlight"><pre><span class="lineno">1</span> <span class="k">class</span> <span class="nc">Person</span><span class="o">(</span><span class="n">aName</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span> <span class="o">{</span>
+<span class="lineno">2</span>   <span class="k">private</span> <span class="k">var</span> <span class="nc">_name</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="n">aName</span>
+<span class="lineno">3</span>   <span class="k">def</span> <span class="n">name</span> <span class="k">=</span> <span class="nc">_name</span>
+<span class="lineno">4</span>   <span class="k">def</span> <span class="n">name_=</span><span class="o">(</span><span class="n">value</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span> <span class="k">=</span> <span class="nc">_name</span> <span class="k">=</span> <span class="n">value</span>
+<span class="lineno">5</span>   <span class="k">def</span> <span class="n">getName</span> <span class="k">=</span> <span class="n">name</span>
+<span class="lineno">6</span>   <span class="k">def</span> <span class="n">setName</span><span class="o">(</span><span class="n">value</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span> <span class="k">=</span> <span class="n">name</span> <span class="k">=</span> <span class="n">value</span>
+<span class="lineno">7</span> <span class="o">}</span>
+</pre></div>
+
+<p>Автоматично генерирани:</p>
+<div class="highlight"><pre><span class="lineno">1</span> <span class="k">class</span> <span class="nc">PersonAuto</span><span class="o">(</span><span class="n">aName</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span> <span class="o">{</span>
+<span class="lineno">2</span>   <span class="nd">@BeanProperty</span>
+<span class="lineno">3</span>   <span class="k">var</span> <span class="n">name</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="n">aName</span>
+<span class="lineno">4</span> <span class="o">}</span>
+</pre></div>
+
+<p>И най-компактно:</p>
+<div class="highlight"><pre><span class="lineno">1</span> <span class="k">class</span> <span class="nc">PersonAutoCompact</span><span class="o">(</span><span class="nd">@BeanProperty</span> <span class="k">var</span> <span class="n">name</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span>
+</pre></div>
+</section>
+          
+        </div>
+        <footer>
+          
+          <aside class="source">
+            Source: <a href="file:///home/hristo/w/scala-world-domination/scala-world-domination.md">scala-world-domination.md</a>
+          </aside>
+          
+          <aside class="page_number">
+            8/24
+          </aside>
+        </footer>
+      </div>
+      
+      <!-- slide source: scala-world-domination.md -->
+      <div class="slide has_code">
+        <div class="inner">
+          
+          <header><h1>Objects</h1></header>
+          
+          
+          <section><p>Singletons с анонимен клас.</p>
+<div class="highlight"><pre><span class="lineno">1</span> <span class="k">object</span> <span class="nc">Http</span> <span class="o">{</span>
+<span class="lineno">2</span>   <span class="k">def</span> <span class="n">urlDecode</span><span class="o">(</span><span class="n">in</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span> <span class="k">=</span> <span class="n">error</span><span class="o">(</span><span class="s">&quot;todo&quot;</span><span class="o">)</span>
+<span class="lineno">3</span> <span class="o">}</span>
+</pre></div>
+
+<p>Лесни singleton имплементации, лесни factories, за съжаление - лесен начин да работиш с глобални данни.</p></section>
+          
+        </div>
+        <footer>
+          
+          <aside class="source">
+            Source: <a href="file:///home/hristo/w/scala-world-domination/scala-world-domination.md">scala-world-domination.md</a>
+          </aside>
+          
+          <aside class="page_number">
+            9/24
+          </aside>
+        </footer>
+      </div>
+      
+      <!-- slide source: scala-world-domination.md -->
+      <div class="slide has_code">
+        <div class="inner">
+          
+          <header><h1>Companion objects</h1></header>
+          
+          
+          <section><p>Scala няма статични методи! Симулираме ги като слагаме методи на т.нар. companion objects:</p>
+<div class="highlight"><pre><span class="lineno"> 1</span> <span class="k">class</span> <span class="nc">Account</span><span class="o">(</span><span class="k">val</span> <span class="n">name</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="k">val</span> <span class="n">email</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span>
+<span class="lineno"> 2</span> 
+<span class="lineno"> 3</span> <span class="k">object</span> <span class="nc">Account</span> <span class="o">{</span>
+<span class="lineno"> 4</span>   <span class="k">def</span> <span class="n">fromEmail</span><span class="o">(</span><span class="n">email</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span> <span class="k">=</span> <span class="o">{</span>
+<span class="lineno"> 5</span>     <span class="k">new</span> <span class="nc">Account</span><span class="o">(</span><span class="s">&quot;Unknown&quot;</span><span class="o">,</span> <span class="n">email</span><span class="o">)</span>
+<span class="lineno"> 6</span>   <span class="o">}</span>
+<span class="lineno"> 7</span> 
+<span class="lineno"> 8</span>   <span class="k">def</span> <span class="n">apply</span><span class="o">(</span><span class="n">email</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span> <span class="k">=</span> <span class="n">fromEmail</span><span class="o">(</span><span class="n">email</span><span class="o">)</span>
+<span class="lineno"> 9</span> <span class="o">}</span>
+<span class="lineno">10</span> 
+<span class="lineno">11</span> <span class="k">val</span> <span class="n">john</span> <span class="k">=</span> <span class="nc">Account</span><span class="o">.</span><span class="n">fromEmail</span><span class="o">(</span><span class="s">&quot;john@example.com&quot;</span><span class="o">)</span>
+<span class="lineno">12</span> <span class="k">val</span> <span class="n">mike</span> <span class="k">=</span> <span class="nc">Account</span><span class="o">(</span><span class="s">&quot;mike@example.com&quot;</span><span class="o">)</span>
+</pre></div>
+
+<p><em>apply</em> е специален метод - с него обектът вече се държи като функция.</p></section>
+          
+        </div>
+        <footer>
+          
+          <aside class="source">
+            Source: <a href="file:///home/hristo/w/scala-world-domination/scala-world-domination.md">scala-world-domination.md</a>
+          </aside>
+          
+          <aside class="page_number">
+            10/24
+          </aside>
+        </footer>
+      </div>
+      
+      <!-- slide source: scala-world-domination.md -->
+      <div class="slide">
+        <div class="inner">
+          
+          <header><h1>Case classes</h1></header>
+          
+          
+          <section><ul>
+<li>по-умни data object имплементации.</li>
+<li>компилаторът ни помага и безплатно получаваме:<ul>
+<li>companion objects с правилните <em>apply</em> имплементации</li>
+<li><em>copy</em> метод, за лесно клониране</li>
+<li>методите за сравнение и хеш код на обектите</li>
+<li>поддържка на pattern matching.</li>
+</ul>
+</li>
+</ul></section>
+          
+        </div>
+        <footer>
+          
+          <aside class="source">
+            Source: <a href="file:///home/hristo/w/scala-world-domination/scala-world-domination.md">scala-world-domination.md</a>
+          </aside>
+          
+          <aside class="page_number">
+            11/24
+          </aside>
+        </footer>
+      </div>
+      
+      <!-- slide source: scala-world-domination.md -->
+      <div class="slide">
+        <div class="inner">
+          
+          <header><h1>Traits</h1></header>
+          
+          
+          <section><ul>
+<li>интерфейси</li>
+<li>но и с имплементация</li>
+<li>композиране на функционалност</li>
+</ul></section>
+          
+        </div>
+        <footer>
+          
+          <aside class="source">
+            Source: <a href="file:///home/hristo/w/scala-world-domination/scala-world-domination.md">scala-world-domination.md</a>
+          </aside>
+          
+          <aside class="page_number">
+            12/24
+          </aside>
+        </footer>
+      </div>
+      
+      <!-- slide source: scala-world-domination.md -->
+      <div class="slide has_code">
+        <div class="inner">
+          
+          <header><h1>Traits - пример</h1></header>
+          
+          
+          <section><div class="highlight"><pre><span class="lineno"> 1</span> <span class="k">trait</span> <span class="nc">AccountReader</span> <span class="o">{</span>
+<span class="lineno"> 2</span>   <span class="k">def</span> <span class="n">db</span><span class="k">:</span> <span class="kt">AccountDb</span>
+<span class="lineno"> 3</span>   <span class="k">def</span> <span class="n">accountId</span><span class="k">:</span> <span class="kt">String</span>
+<span class="lineno"> 4</span> 
+<span class="lineno"> 5</span>   <span class="k">def</span> <span class="n">account</span> <span class="k">=</span> <span class="n">db</span><span class="o">.</span><span class="n">find</span><span class="o">(</span><span class="n">accountId</span><span class="o">)</span>
+<span class="lineno"> 6</span> <span class="o">}</span>
+<span class="lineno"> 7</span> 
+<span class="lineno"> 8</span> <span class="k">trait</span> <span class="nc">HttpHeaderAccount</span> <span class="o">{</span> <span class="n">self</span> <span class="k">:</span> <span class="kt">Controller</span> <span class="o">=&gt;</span>
+<span class="lineno"> 9</span>   <span class="k">def</span> <span class="n">accountId</span> <span class="k">=</span> <span class="n">header</span><span class="o">(</span><span class="s">&quot;Account-Id&quot;</span><span class="o">)</span>
+<span class="lineno">10</span> <span class="o">}</span>
+<span class="lineno">11</span> 
+<span class="lineno">12</span> <span class="k">class</span> <span class="nc">AccountController</span> 
+<span class="lineno">13</span>   <span class="k">extends</span> <span class="nc">Controller</span> 
+<span class="lineno">14</span>   <span class="k">with</span> <span class="nc">AccountReader</span> 
+<span class="lineno">15</span>   <span class="k">with</span> <span class="nc">HttpHeaderAccount</span> <span class="o">{</span>
+<span class="lineno">16</span>   <span class="k">def</span> <span class="n">db</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">AccountDb</span>
+<span class="lineno">17</span> <span class="o">}</span>
+</pre></div>
+</section>
+          
+        </div>
+        <footer>
+          
+          <aside class="source">
+            Source: <a href="file:///home/hristo/w/scala-world-domination/scala-world-domination.md">scala-world-domination.md</a>
+          </aside>
+          
+          <aside class="page_number">
+            13/24
+          </aside>
+        </footer>
+      </div>
+      
+      <!-- slide source: scala-world-domination.md -->
+      <div class="slide has_code">
+        <div class="inner">
+          
+          <header><h1>Implicit conversions</h1></header>
+          
+          
+          <section><p>Автоматично конвертиране от един обект в друг, чрез маркиране на метода за конверсия с <em>implicit</em>.</p>
+<p>Удобно за добавяне на методи в съществуващи класове. Още известно като Pimp My Library.</p>
+<div class="highlight"><pre><span class="lineno"> 1</span> <span class="k">object</span> <span class="nc">Units</span> <span class="o">{</span>
+<span class="lineno"> 2</span>   <span class="k">implicit</span> <span class="k">def</span> <span class="n">toSize</span><span class="o">(</span><span class="n">value</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">SizeInt</span><span class="o">(</span><span class="n">value</span><span class="o">)</span>
+<span class="lineno"> 3</span> <span class="o">}</span>
+<span class="lineno"> 4</span> 
+<span class="lineno"> 5</span> <span class="k">class</span> <span class="nc">SizeInt</span><span class="o">(</span><span class="k">val</span> <span class="n">value</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span> <span class="o">{</span>
+<span class="lineno"> 6</span>   <span class="k">def</span> <span class="n">megaBytes</span> <span class="k">=</span> <span class="nc">Bytes</span><span class="o">(</span><span class="n">value</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="o">)</span>
+<span class="lineno"> 7</span> <span class="o">}</span>
+<span class="lineno"> 8</span> 
+<span class="lineno"> 9</span> <span class="k">import</span> <span class="nn">Units._</span>
+<span class="lineno">10</span> <span class="k">val</span> <span class="n">size</span> <span class="k">=</span> <span class="mf">5.</span><span class="n">megaBytes</span>
+</pre></div>
+
+<p>По-мощно от т.нар. <em>extension methods</em> в други езици (C#).</p></section>
+          
+        </div>
+        <footer>
+          
+          <aside class="source">
+            Source: <a href="file:///home/hristo/w/scala-world-domination/scala-world-domination.md">scala-world-domination.md</a>
+          </aside>
+          
+          <aside class="page_number">
+            14/24
+          </aside>
+        </footer>
+      </div>
+      
+      <!-- slide source: scala-world-domination.md -->
+      <div class="slide has_code">
+        <div class="inner">
+          
+          <header><h1>Implicit parameters/values</h1></header>
+          
+          
+          <section><ul>
+<li>Маркираме определени стойности (val или object) като implicit.</li>
+<li>Маркираме и параметри на методи като такива.</li>
+<li>Ако по време на извикване, компилаторът вижда стойност от нужния тип, я подава автоматично и не ни кара да пишем.</li>
+</ul>
+<p>Пример</p>
+<div class="highlight"><pre><span class="lineno">1</span> <span class="k">implicit</span> <span class="k">object</span> <span class="nc">PersonSerializer</span> <span class="k">extends</span> <span class="nc">XmlSerializer</span><span class="o">[</span><span class="kt">Person</span><span class="o">]</span> <span class="o">{</span>
+<span class="lineno">2</span>   <span class="k">def</span> <span class="n">toXml</span><span class="o">(</span><span class="n">in</span><span class="k">:</span> <span class="kt">Person</span><span class="o">)</span> <span class="k">=</span> <span class="o">&lt;</span><span class="n">person</span><span class="o">&gt;&lt;</span><span class="n">name</span><span class="o">&gt;{</span><span class="n">in</span><span class="o">.</span><span class="n">name</span><span class="o">}&lt;/</span><span class="n">name</span><span class="o">&gt;&lt;/</span><span class="n">person</span><span class="o">&gt;</span>
+<span class="lineno">3</span> <span class="o">}</span>
+<span class="lineno">4</span> <span class="k">def</span> <span class="n">toXml</span><span class="o">[</span><span class="kt">T</span><span class="o">](</span><span class="n">in</span><span class="k">:</span> <span class="kt">T</span><span class="o">)(</span><span class="k">implicit</span> <span class="n">serializer</span><span class="k">:</span> <span class="kt">XmlSerializer</span><span class="o">[</span><span class="kt">T</span><span class="o">])</span> <span class="k">=</span>
+<span class="lineno">5</span>   <span class="n">serializer</span><span class="o">.</span><span class="n">toXml</span><span class="o">(</span><span class="n">in</span><span class="o">)</span>
+<span class="lineno">6</span> 
+<span class="lineno">7</span> <span class="k">val</span> <span class="n">xml</span> <span class="k">=</span> <span class="n">toXml</span><span class="o">(</span><span class="nc">Person</span><span class="o">(</span><span class="s">&quot;John&quot;</span><span class="o">))</span>
+</pre></div>
+</section>
+          
+        </div>
+        <footer>
+          
+          <aside class="source">
+            Source: <a href="file:///home/hristo/w/scala-world-domination/scala-world-domination.md">scala-world-domination.md</a>
+          </aside>
+          
+          <aside class="page_number">
+            15/24
+          </aside>
+        </footer>
+      </div>
+      
+      <!-- slide source: scala-world-domination.md -->
+      <div class="slide has_code">
+        <div class="inner">
+          
+          <header><h1>Implicit values ползи - конфигурация</h1></header>
+          
+          
+          <section><p>За какво ни е всичко това? Пример - конфигурация на <em>lift-json</em> библиотеката</p>
+<div class="highlight"><pre><span class="lineno">1</span> <span class="k">implicit</span> <span class="k">val</span> <span class="n">formats</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">DefaultFormats</span> <span class="o">{</span>
+<span class="lineno">2</span>   <span class="k">override</span> <span class="k">def</span> <span class="n">dateFormatter</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">SimpleDateFormat</span><span class="o">(</span><span class="s">&quot;yyyy-MM-dd&#39;T&#39;HH:mm:ss.SSS&#39;Z&#39;&quot;</span><span class="o">)</span>
+<span class="lineno">3</span> <span class="o">}</span>
+</pre></div>
+</section>
+          
+        </div>
+        <footer>
+          
+          <aside class="source">
+            Source: <a href="file:///home/hristo/w/scala-world-domination/scala-world-domination.md">scala-world-domination.md</a>
+          </aside>
+          
+          <aside class="page_number">
+            16/24
+          </aside>
+        </footer>
+      </div>
+      
+      <!-- slide source: scala-world-domination.md -->
+      <div class="slide has_code">
+        <div class="inner">
+          
+          <header><h1>Implicit parameters ползи - Typeclasses</h1></header>
+          
+          
+          <section><p>Реален пример от <a href="https://github.com/debasishg/sjson/">sjson</a> библиотеката:</p>
+<div class="highlight"><pre><span class="lineno"> 1</span> <span class="k">object</span> <span class="nc">Protocols</span> <span class="o">{</span>
+<span class="lineno"> 2</span>   <span class="c1">// person abstraction</span>
+<span class="lineno"> 3</span>   <span class="k">case</span> <span class="k">class</span> <span class="nc">Person</span><span class="o">(</span><span class="n">lastName</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">firstName</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">age</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span>
+<span class="lineno"> 4</span> 
+<span class="lineno"> 5</span>   <span class="c1">// protocol definition for person serialization</span>
+<span class="lineno"> 6</span>   <span class="k">object</span> <span class="nc">PersonProtocol</span> <span class="k">extends</span> <span class="nc">DefaultProtocol</span> <span class="o">{</span>
+<span class="lineno"> 7</span>     <span class="k">import</span> <span class="nn">dispatch.json._</span>
+<span class="lineno"> 8</span>     <span class="k">import</span> <span class="nn">JsonSerialization._</span>
+<span class="lineno"> 9</span> 
+<span class="lineno">10</span>     <span class="k">implicit</span> <span class="k">object</span> <span class="nc">PersonFormat</span> <span class="k">extends</span> <span class="nc">Format</span><span class="o">[</span><span class="kt">Person</span><span class="o">]</span> <span class="o">{</span>
+<span class="lineno">11</span>       <span class="k">def</span> <span class="n">reads</span><span class="o">(</span><span class="n">json</span><span class="k">:</span> <span class="kt">JsValue</span><span class="o">)</span><span class="k">:</span> <span class="kt">Person</span> <span class="o">=</span> <span class="n">json</span> <span class="k">match</span> <span class="o">{</span>
+<span class="lineno">12</span>         <span class="c1">//...</span>
+<span class="lineno">13</span>       <span class="o">}</span>
+<span class="lineno">14</span> 
+<span class="lineno">15</span>       <span class="k">def</span> <span class="n">writes</span><span class="o">(</span><span class="n">p</span><span class="k">:</span> <span class="kt">Person</span><span class="o">)</span><span class="k">:</span> <span class="kt">JsValue</span> <span class="o">=</span> <span class="c1">//...</span>
+<span class="lineno">16</span>     <span class="o">}</span>
+<span class="lineno">17</span>   <span class="o">}</span>
+<span class="lineno">18</span> <span class="o">}</span>
+<span class="lineno">19</span> 
+<span class="lineno">20</span> <span class="c1">//...</span>
+<span class="lineno">21</span> <span class="k">val</span> <span class="n">js</span> <span class="k">=</span> <span class="n">tojson</span><span class="o">(</span><span class="nc">Person</span><span class="o">(</span><span class="s">&quot;Smith&quot;</span><span class="o">,</span> <span class="s">&quot;John&quot;</span><span class="o">,</span> <span class="mi">28</span><span class="o">))</span>
+</pre></div>
+</section>
+          
+        </div>
+        <footer>
+          
+          <aside class="source">
+            Source: <a href="file:///home/hristo/w/scala-world-domination/scala-world-domination.md">scala-world-domination.md</a>
+          </aside>
+          
+          <aside class="page_number">
+            17/24
+          </aside>
+        </footer>
+      </div>
+      
+      <!-- slide source: scala-world-domination.md -->
+      <div class="slide has_code">
+        <div class="inner">
+          
+          <header><h1>Pattern matching</h1></header>
+          
+          
+          <section><p><strike>Switch на стероиди</strike></p>
+<p>Едновременно проверка за определена структура от обекти и измъкване на подобекти.</p>
+<p>Компактен код:</p>
+<div class="highlight"><pre><span class="lineno">1</span> <span class="k">val</span> <span class="n">people</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="nc">Person</span><span class="o">(</span><span class="s">&quot;John&quot;</span><span class="o">))</span> <span class="o">::</span> <span class="nc">Some</span><span class="o">(</span><span class="nc">Person</span><span class="o">(</span><span class="s">&quot;Mike&quot;</span><span class="o">))</span> <span class="o">::</span> <span class="nc">None</span> <span class="o">::</span> <span class="nc">Nil</span>
+<span class="lineno">2</span> <span class="k">val</span> <span class="n">secondName</span> <span class="k">=</span> <span class="n">people</span> <span class="k">match</span> <span class="o">{</span>
+<span class="lineno">3</span>   <span class="k">case</span> <span class="n">head</span> <span class="o">::</span> <span class="nc">Some</span><span class="o">(</span><span class="nc">Person</span><span class="o">(</span><span class="n">name</span><span class="o">))</span> <span class="o">::</span> <span class="n">tail</span> <span class="k">=&gt;</span> <span class="nc">Some</span><span class="o">(</span><span class="n">name</span><span class="o">)</span>
+<span class="lineno">4</span>   <span class="k">case</span> <span class="k">_</span> <span class="k">=&gt;</span> <span class="nc">None</span>
+<span class="lineno">5</span> <span class="o">}</span>
+</pre></div>
+
+<p>Разширяеми - интересни API:</p>
+<div class="highlight"><pre><span class="lineno">1</span> <span class="k">val</span> <span class="n">protocolParser</span> <span class="k">=</span> <span class="s">&quot;([^:]+):.*&quot;</span><span class="o">.</span><span class="n">r</span>
+<span class="lineno">2</span> <span class="k">val</span> <span class="n">parsed</span> <span class="k">=</span> <span class="s">&quot;http://google.com&quot;</span> <span class="k">match</span> <span class="o">{</span>
+<span class="lineno">3</span>   <span class="k">case</span> <span class="n">protocolParser</span><span class="o">(</span><span class="n">proto</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">proto</span>
+<span class="lineno">4</span> <span class="o">}</span>
+</pre></div>
+</section>
+          
+        </div>
+        <footer>
+          
+          <aside class="source">
+            Source: <a href="file:///home/hristo/w/scala-world-domination/scala-world-domination.md">scala-world-domination.md</a>
+          </aside>
+          
+          <aside class="page_number">
+            18/24
+          </aside>
+        </footer>
+      </div>
+      
+      <!-- slide source: scala-world-domination.md -->
+      <div class="slide has_code">
+        <div class="inner">
+          
+          <header><h1>Functions</h1></header>
+          
+          
+          <section><p>Първокласни обекти.</p>
+<div class="highlight"><pre><span class="lineno">1</span> <span class="k">val</span> <span class="n">add5</span> <span class="k">=</span> <span class="o">(</span><span class="n">num</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">num</span> <span class="o">+</span> <span class="mi">5</span>
+<span class="lineno">2</span> <span class="k">val</span> <span class="n">sum</span> <span class="k">=</span> <span class="n">add5</span><span class="o">(</span><span class="mi">3</span><span class="o">)</span>
+</pre></div>
+
+<p>Подаваме ги като параметри (и няма нужда да им разписваме типовете, когато компилаторът ги знае):</p>
+<div class="highlight"><pre><span class="lineno">1</span> <span class="nc">List</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">).</span><span class="n">map</span><span class="o">(</span><span class="n">n</span> <span class="k">=&gt;</span> <span class="n">n</span> <span class="o">*</span> <span class="mi">2</span><span class="o">)</span>
+</pre></div>
+
+<p>Толкова често ги ползваме, че имаме и по-лесен синтаксис:</p>
+<div class="highlight"><pre><span class="lineno">1</span> <span class="nc">List</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">).</span><span class="n">map</span><span class="o">(</span><span class="k">_</span> <span class="o">*</span> <span class="mi">2</span><span class="o">)</span>
+</pre></div>
+
+<p>За всяка функция, компилаторът генерира анонимен клас с познатия ни метод <em>apply</em>.</p></section>
+          
+        </div>
+        <footer>
+          
+          <aside class="source">
+            Source: <a href="file:///home/hristo/w/scala-world-domination/scala-world-domination.md">scala-world-domination.md</a>
+          </aside>
+          
+          <aside class="page_number">
+            19/24
+          </aside>
+        </footer>
+      </div>
+      
+      <!-- slide source: scala-world-domination.md -->
+      <div class="slide">
+        <div class="inner">
+          
+          <header><h1>Mutable vs. Immutable</h1></header>
+          
+          
+          <section><ul>
+<li>Програмирането с мутиращи данни не се окуражава.</li>
+<li>
+<p>Но пък и не се забранява с фанатизъм.</p>
+</li>
+<li>
+<p>val vs. var</p>
+</li>
+<li>scala.collection.immutable vs. scala.collection.mutable</li>
+</ul></section>
+          
+        </div>
+        <footer>
+          
+          <aside class="source">
+            Source: <a href="file:///home/hristo/w/scala-world-domination/scala-world-domination.md">scala-world-domination.md</a>
+          </aside>
+          
+          <aside class="page_number">
+            20/24
+          </aside>
+        </footer>
+      </div>
+      
+      <!-- slide source: scala-world-domination.md -->
+      <div class="slide has_code">
+        <div class="inner">
+          
+          <header><h1>Currying</h1></header>
+          
+          
+          <section><p>Методите могат да имат по няколко списъка с параметри.</p>
+<p>И можем да ги извикваме "частично" като подаваме само някои от тях.</p>
+<p>Резултатът са нови функции:</p>
+<div class="highlight"><pre><span class="lineno">1</span> <span class="k">def</span> <span class="n">add</span><span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)(</span><span class="n">y</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+<span class="lineno">2</span> 
+<span class="lineno">3</span> <span class="k">val</span> <span class="n">increment</span> <span class="k">=</span> <span class="n">add</span><span class="o">(</span><span class="mi">1</span><span class="o">)</span><span class="k">_</span>
+<span class="lineno">4</span> <span class="k">val</span> <span class="n">incremented</span> <span class="k">=</span> <span class="n">increment</span><span class="o">(</span><span class="mi">10</span><span class="o">)</span>
+</pre></div>
+</section>
+          
+        </div>
+        <footer>
+          
+          <aside class="source">
+            Source: <a href="file:///home/hristo/w/scala-world-domination/scala-world-domination.md">scala-world-domination.md</a>
+          </aside>
+          
+          <aside class="page_number">
+            21/24
+          </aside>
+        </footer>
+      </div>
+      
+      <!-- slide source: scala-world-domination.md -->
+      <div class="slide">
+        <div class="inner">
+          
+          <header><h1>Отново - защо да се занимавам със Scala</h1></header>
+          
+          
+          <section><ul>
+<li>Ако програмирате за JVM, ще си подобрите производителността.<ul>
+<li>Започнете бавно и с отделни компоненти (тестовете например).</li>
+<li>Без проблем ще работите със съществуващия Java код.</li>
+</ul>
+</li>
+<li>Този септември чакаме съживеният Scala .NET компилатор!</li>
+<li>Ще сте почти веднага по-продуктивни, ако използвате Scala като по-добра Java.</li>
+<li>Има мноооого за учене за функционалната страна на Scala.<ul>
+<li>Не се отчайвайте от това. Всяка малка победа ви прави по-добър програмист.</li>
+</ul>
+</li>
+</ul></section>
+          
+        </div>
+        <footer>
+          
+          <aside class="source">
+            Source: <a href="file:///home/hristo/w/scala-world-domination/scala-world-domination.md">scala-world-domination.md</a>
+          </aside>
+          
+          <aside class="page_number">
+            22/24
+          </aside>
+        </footer>
+      </div>
+      
+      <!-- slide source: scala-world-domination.md -->
+      <div class="slide">
+        <div class="inner">
+          
+          <header><h1>Въпроси?</h1></header>
+          
+          
+        </div>
+        <footer>
+          
+          <aside class="source">
+            Source: <a href="file:///home/hristo/w/scala-world-domination/scala-world-domination.md">scala-world-domination.md</a>
+          </aside>
+          
+          <aside class="page_number">
+            23/24
+          </aside>
+        </footer>
+      </div>
+      
+      <!-- slide source: scala-world-domination.md -->
+      <div class="slide">
+        <div class="inner">
+          
+          <header><h1>Бонуси</h1></header>
+          
+          
+          <section><ul>
+<li>Всичко в Scala e израз</li>
+<li>Uniform access principle</li>
+<li>Partial functions</li>
+<li>lazy vals</li>
+<li>By-name метод параметри</li>
+<li>Gotchas - JVM type erasure :-)</li>
+</ul></section>
+          
+        </div>
+        <footer>
+          
+          <aside class="source">
+            Source: <a href="file:///home/hristo/w/scala-world-domination/scala-world-domination.md">scala-world-domination.md</a>
+          </aside>
+          
+          <aside class="page_number">
+            24/24
+          </aside>
+        </footer>
+      </div>
+      
+    </div>
+  </div>
+  
+  <div id="toc" class="sidebar hidden">
+    <h2>Table of Contents</h2>
+    <table>
+      <caption>Table of Contents</caption>
+            
+      <tr id="toc-row-1">
+        <th><a href="#slide1">Световна доминация със Scala<br/>Христо Дешев - @hdeshev</a></th>
+        <td><a href="#slide1">1</a></td>
+      </tr>
+      
+            
+      <tr id="toc-row-2">
+        <th><a href="#slide2">Кратка история на езика</a></th>
+        <td><a href="#slide2">2</a></td>
+      </tr>
+      
+            
+      <tr id="toc-row-3">
+        <th><a href="#slide3">Защо Scala?</a></th>
+        <td><a href="#slide3">3</a></td>
+      </tr>
+      
+            
+      <tr id="toc-row-4">
+        <th><a href="#slide4">Автоматично разпознаване на типовете</a></th>
+        <td><a href="#slide4">4</a></td>
+      </tr>
+      
+            
+      <tr id="toc-row-5">
+        <th><a href="#slide5">Истински обектен език</a></th>
+        <td><a href="#slide5">5</a></td>
+      </tr>
+      
+            
+      <tr id="toc-row-6">
+        <th><a href="#slide6">Класове</a></th>
+        <td><a href="#slide6">6</a></td>
+      </tr>
+      
+            
+      <tr id="toc-row-7">
+        <th><a href="#slide7">Методи</a></th>
+        <td><a href="#slide7">7</a></td>
+      </tr>
+      
+            
+      <tr id="toc-row-8">
+        <th><a href="#slide8">Свойства (Properties)</a></th>
+        <td><a href="#slide8">8</a></td>
+      </tr>
+      
+            
+      <tr id="toc-row-9">
+        <th><a href="#slide9">Objects</a></th>
+        <td><a href="#slide9">9</a></td>
+      </tr>
+      
+            
+      <tr id="toc-row-10">
+        <th><a href="#slide10">Companion objects</a></th>
+        <td><a href="#slide10">10</a></td>
+      </tr>
+      
+            
+      <tr id="toc-row-11">
+        <th><a href="#slide11">Case classes</a></th>
+        <td><a href="#slide11">11</a></td>
+      </tr>
+      
+            
+      <tr id="toc-row-12">
+        <th><a href="#slide12">Traits</a></th>
+        <td><a href="#slide12">12</a></td>
+      </tr>
+      
+            
+      <tr id="toc-row-13">
+        <th><a href="#slide13">Traits - пример</a></th>
+        <td><a href="#slide13">13</a></td>
+      </tr>
+      
+            
+      <tr id="toc-row-14">
+        <th><a href="#slide14">Implicit conversions</a></th>
+        <td><a href="#slide14">14</a></td>
+      </tr>
+      
+            
+      <tr id="toc-row-15">
+        <th><a href="#slide15">Implicit parameters/values</a></th>
+        <td><a href="#slide15">15</a></td>
+      </tr>
+      
+            
+      <tr id="toc-row-16">
+        <th><a href="#slide16">Implicit values ползи - конфигурация</a></th>
+        <td><a href="#slide16">16</a></td>
+      </tr>
+      
+            
+      <tr id="toc-row-17">
+        <th><a href="#slide17">Implicit parameters ползи - Typeclasses</a></th>
+        <td><a href="#slide17">17</a></td>
+      </tr>
+      
+            
+      <tr id="toc-row-18">
+        <th><a href="#slide18">Pattern matching</a></th>
+        <td><a href="#slide18">18</a></td>
+      </tr>
+      
+            
+      <tr id="toc-row-19">
+        <th><a href="#slide19">Functions</a></th>
+        <td><a href="#slide19">19</a></td>
+      </tr>
+      
+            
+      <tr id="toc-row-20">
+        <th><a href="#slide20">Mutable vs. Immutable</a></th>
+        <td><a href="#slide20">20</a></td>
+      </tr>
+      
+            
+      <tr id="toc-row-21">
+        <th><a href="#slide21">Currying</a></th>
+        <td><a href="#slide21">21</a></td>
+      </tr>
+      
+            
+      <tr id="toc-row-22">
+        <th><a href="#slide22">Отново - защо да се занимавам със Scala</a></th>
+        <td><a href="#slide22">22</a></td>
+      </tr>
+      
+            
+      <tr id="toc-row-23">
+        <th><a href="#slide23">Въпроси?</a></th>
+        <td><a href="#slide23">23</a></td>
+      </tr>
+      
+            
+      <tr id="toc-row-24">
+        <th><a href="#slide24">Бонуси</a></th>
+        <td><a href="#slide24">24</a></td>
+      </tr>
+      
+      
+    </table>
+  </div>
+  
+  <div id="help" class="sidebar hidden">
+    <h2>Help</h2>
+    <table>
+      <caption>Help</caption>
+      <tr>
+        <th>Table of Contents</th>
+        <td>t</td>
+      </tr>
+      <tr>
+        <th>Source Files</th>
+        <td>s</td>
+      </tr>
+      <tr>
+        <th>Slide Numbers</th>
+        <td>n</td>
+      </tr>
+      <tr>
+        <th>Notes</th>
+        <td>2</td>
+      </tr>
+      <tr>
+        <th>Help</th>
+        <td>h</td>
+      </tr>
+    </table>
+  </div>
+  <script>main()</script>
+</body>
+</html>
