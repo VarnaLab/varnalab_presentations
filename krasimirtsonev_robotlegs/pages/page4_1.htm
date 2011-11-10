@@ -1,0 +1,23 @@
+<div class="page">
+    <h1>Dependency Injection</h1>
+    <div id="s1">
+        <h2>A dependency is just a requirement to use another object</h2>
+        <h3>public function UserXMLLoader( loadScriptPath:String )</h3>
+    </div>
+    <div id="s2">
+        <h2>Ако A има нужда от Б, то е защото иска да го използва за:</h2>
+        <ul class="font20">
+            <li>Configuration: A wants to use Б in a read-only style</li>
+            <li>Cooperation: A wants to use Б through its API (public methods)</li>
+            <li>Communication: A wants to register listeners for messages dispatched by Б</li>
+        </ul>
+    </div>
+    <div id="s3">
+        <h2>Three different ways for DI</h2>
+        <ul class="font20">
+            <li>Създаване на инстанция на Б в А</li>
+            <li>Locator pattern - вмъкване на вече създаден инстанция на Б в А чрез locator<br />* зависимост от locator</li>
+            <li>Мanually inject (composition) - създаване на инстанция на Б някъде другаде и вмъкването и дирекно в А</li>
+        </ul>
+    </div>
+</div>
