@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<mx:Application 
+    xmlns:mx="http://www.adobe.com/2006/mxml" 
+    frameRate="31"  
+    backgroundColor="#FFFFFF" 
+    width="600" 
+    height="300" 
+    layout="absolute" 
+    applicationComplete="initApp()">
+	<mx:Script>
+		<![CDATA[
+			
+		import lib.App;
+		import com.krasimirtsonev.utils.UIComponentWrapper;
+		
+		private function initApp():void {
+			addChild(new App());
+		}
+			
+		]]>
+	</mx:Script>	
+</mx:Application>
