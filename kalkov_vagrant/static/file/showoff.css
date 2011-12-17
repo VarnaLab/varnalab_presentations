@@ -1,0 +1,40 @@
+/*
+.bullets > ul {
+list-style: none;
+}
+
+li {
+	font-size: 0.6em;
+	
+}
+
+.bullets > ul > li {
+text-align: center;
+padding: 15px;
+}
+*/
+.content {
+
+  color: white;
+  font-family: helvetica, arial;
+}
+
+#preso , .content,  .slide {
+	  background: black;
+}
+
+.commandline code.result{
+	color: yellow;
+}
+
+
+.commandline code.command{
+	color: orange;
+}
+
+
+
+
+.smaller {
+	font-size: 50%;
+}

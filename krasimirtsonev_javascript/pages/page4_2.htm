@@ -1,0 +1,25 @@
+<div class="page">
+	<h1>4.2. Constructor Pattern</h1>
+	<h2>Конструтурите се използват за създаване на обекти от специфичен тип. Те подготвят обекта за работа и могат да приемат параметри, които да бъдат използвани по късно.</h2>
+	<pre>
+		var Class = function(param1, param2) {
+			this.var1 = param1;
+			this.var2 = param2;
+		}
+		Class.prototype = {
+			method:function() {
+				alert(this.var1 + "/" + this.var2);
+			}
+		};
+		...
+		...
+		...
+		function Class(param1, param2) {
+			this.var1 = param1;
+			this.var2 = param2;
+			this.method = function() {
+				alert(param1 + "/" + param2);
+			};
+		};
+	</pre>
+</div>

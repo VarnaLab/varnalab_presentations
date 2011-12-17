@@ -1,0 +1,18 @@
+<div class="page">
+	<h1>4.4. Module Pattern</h1>
+	<p>* Прилича на Singleton pattern</p>
+	<pre>
+		var Module = (function() {
+			var _index = 0;			
+			return {
+				increment: function() {
+					_index += 1;
+				},
+				getIndex: function() {
+					return _index;
+				}
+			};		
+		})();
+		// недостатък: нямаме достъп до private промеливи от методи дефинирани по късно.
+	</pre>
+</div>

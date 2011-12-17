@@ -1,0 +1,35 @@
+<div class="page">
+	<h1>4.5. Revealing Module Pattern</h1>
+	Автор: Chris Heilmann<br />
+	Проблеми които решава:<br />
+	- необходимостта да се пише името на класа когато се достъпва public метод от друг public метод<br />
+	- дефиниране на public методи/променливи в обект
+	<pre>
+		var Module = (function() {
+			var _index = 0;			
+			return {
+				getIndex: function() {
+					return _index;
+				},
+				increment: function() {
+					_index = Module.getIndex() + 1;
+				}
+			};		
+		})();
+	</pre>
+	<pre>
+		var Module = (function() {
+			var _index = 0;	
+			var getIndex = function() {
+				return _index;
+			};
+			var increment = function() {
+				_index = getIndex() + 1;
+			};
+			return {
+				getIndex: getIndex,
+				increment: increment
+			};		
+		})();
+	</pre>
+</div>

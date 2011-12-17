@@ -1,0 +1,32 @@
+<div class="page">
+	<h1>4.13. Decorator Pattern</h1>
+	- добавяне на нова функционалност
+	<pre>
+		var User = function() {
+			this.type = "";
+			this.deleted = false;
+		};
+		
+		var Admins = function() {
+		
+			var user = new User();
+			user.type = "admin";
+			
+			this.getType = function() {
+				return user.type;
+			};
+			
+		};
+		
+		var Author = function() {
+		
+			var user = new User();
+			user.type = "author";
+			
+			this.getType = function() {
+				return user.type;
+			};
+			
+		};
+	</pre>
+</div>

@@ -1,0 +1,78 @@
+<div class="page">
+	<h1>4.6. Observer Pattern (publisher/subscriber pattern)</h1>
+	* използва се в системи работещи с events handling<br /><br />
+	<div id="s1">
+		<p>Observer обект следи Subject обект</p>
+		<pre>
+			var Subject = (function() {
+				var topics = {};
+				function subscribe(topic, callback) {
+					if(!topics[topic]) {
+						topics[topic] = [callback]
+					} else {
+						topics[topic].push(callback);
+					}
+				};
+				function unsubscribe() {
+					// ....
+				};
+				function notify(topic) {
+					if(topics[topic]) {
+						var numOfTopics = topics[topic].length;
+						for(var i=0; i &lt; numOfTopics; i++) {
+							topics[topic]();
+						}
+					}
+				};
+				function innerMethod() {
+					// ...
+					notify("data-loaded-successfully");
+					// ...
+				};
+				return {
+					subscribe: subscribe,
+					unsubscribe: unsubscribe
+				};
+			})();
+			
+			var observer1 = ...
+			var observer2 = ...
+			
+			Subject.subscribe("data-loaded-successfully", observer1.callback);
+			Subject.subscribe("data-loaded-successfully", observer2.callback);
+			
+		</pre>
+		<p>EventBus</p>
+		<pre>
+			var EventBusClass = {};
+			EventBusClass = function() {
+				this.listeners = {};
+			};
+			EventBusClass.prototype = {
+				addEventListener:function(type, callback, scope) {
+					...
+					this.listeners[type].push({scope:scope, callback:callback, args:args});
+					...
+				},
+				removeEventListener:function(type, callback, scope) {
+					...
+				},
+				dispatch:function(type, target) {
+					...
+					var listener = this.listeners[type][i];
+					listener.callback.apply(listener.scope, listener.args);
+					...
+				}
+			};
+			var EventBus = new EventBusClass();
+		</pre>
+	</div>
+	<div id="s2">
+		Предимства:<br />
+		- осъществяване на комуникация между обекти<br />
+		- промяна на връзките между обектите по време на изпълнение<br />
+		- ясно разделение на модули<br /><br />
+		Недостатъци:<br />
+		- трудно проследяване на връзките между обектите<br />
+	</div>
+</div>

@@ -1,0 +1,39 @@
+<div class="page">
+	<h1>4.9. DRY Pattern (don't repeat yourself)</h1>
+	- DRY е по скоро начин на мислене и до много от шаблоните за дизайн целят DRY-ness<br />
+	- код изпълняващ конкретна задача небива да бъде писан няколко пъти<br />
+	<h2>Non-DRY</h2>
+	<pre>
+		/* Let's store some default values in an array */
+		var defaultSettings = {};
+		defaultSettings['carModel']   = 'Mercedes';
+		defaultSettings['carYear']    = 2010;
+		defaultSettings['carMiles']   = 5000;
+		defaultSettings['carTint']    = 'Metallic Blue';
+
+		/* Let's do something with this data if a checkbox is clicked */
+		$('.someCheckbox').click(function(){  
+			if (this.checked){                
+				$('#input_carModel').val(activeSettings.carModel);
+				$('#input_carYear').val(activeSettings.carYear);
+				$('#input_carMiles').val(activeSettings.carMiles);
+				$('input_#carTint').val(activeSettings.carTint);
+			} else {			   
+				$('#input_carModel').val('');     
+				$('#input_carYear').val(''); 
+				$('#input_carMiles').val('');
+				$('#input_carTint').val('');
+			}
+		});
+	</pre>
+	<h2>DRY</h2>
+	<pre>	
+		$('.someCheckbox').click(function(){        
+			var checked = this.checked;
+			var fields = ['carModel', 'carYear', 'carMiles', 'carTint']; 
+			$.each(fields, function(i,key){
+				$('#input_' + key).val(checked ? defaultSettings[key] : '');
+			});
+		});
+	</pre>
+</div>

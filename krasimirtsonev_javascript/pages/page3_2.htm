@@ -1,0 +1,56 @@
+<div class="page">
+	<h1>3.2. Що е то функция (scope, closures)</h1>
+	<h2>Дефиниране</h2>
+	<pre>
+		function readData() {
+		
+		}
+		var readData = function() {
+			
+		}
+	</pre>
+	<h2>Scope/context</h2>
+	<pre>
+		var url = "http://google.com";
+		function readData() {
+			var url = "http://yahoo.com";
+			alert(url);
+		}	
+	</pre>
+	<h2>Closures</h2>
+	<pre>		
+		var url = "http://google.com";
+		function readData() {
+		
+			function getPath() {
+				return url;
+			};
+			
+			return {
+				path: getPath()
+			}
+			
+		}
+		var obj = readData();
+	</pre>
+	<img src="pics/obj.jpg"/>
+	<h2>this</h2>
+	<pre>		
+		var url = "http://google.com";
+		function readData() {
+		
+			this.status = "active";
+		
+			function getPath() {
+				this.status = "hold";
+				return url;
+			};
+			
+			return {
+				path: path
+			}
+			
+		}
+		var obj = readData();
+	</pre>
+</div>

@@ -1,0 +1,14 @@
+<div class="page">
+	<h1>1.2. Вмъкване посредством таг-а &lt;script&gt; 2</h1>
+	<pre>
+		var e = document.createElement('script');
+		e.type = 'text/javascript';
+		e.src = document.location.protocol + '//connect.facebook.net/en_US/all.js';
+		e.async = true;
+		if(document.getElementById("fb-root")) {
+			document.getElementById("fb-root").appendChild(e);
+		} else {
+			...
+		}
+	</pre>
+</div>

@@ -1,0 +1,26 @@
+<div class="page">
+	<h1>4.10. Facade Pattern</h1>
+	<pre>
+		var users = {
+			get: function() {
+				...
+			},
+			check: function(username, password) {
+				...
+			},
+			verify: function(username) {
+				...
+			}
+		};
+		var login = {
+			run: function(username, password) {
+				users.get();
+				if(users.check(username, password)) {
+					return users.verify(username);
+				} else {
+					return false;
+				}
+			}
+		};
+	</pre>
+</div>

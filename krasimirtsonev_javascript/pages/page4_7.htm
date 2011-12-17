@@ -1,0 +1,29 @@
+<div class="page">
+	<h1>4.7. Prototype Pattern</h1>
+	* Prototype Pattern === inheritance<br />
+	* Prototype pattern е базиран на концепцията за наследяване чрез прототипи, където създаме обекти, които действат като прототип за други обекти.
+	<h2>Object.create(proto [, propertiesObject ])</h2>
+	<pre>
+		var vehicle = {
+			getModel : function(){
+				console.log('The model of this vehicle is..' + this.model);
+		   }
+		};
+		var car = Object.create(vehicle, {
+			'id' : {
+				value: MY_GLOBAL.nextId(),
+				enumerable: true /*writable:false, configurable:false by default*/
+			},
+			'model':{
+				value: 'Ford',
+				enumerable: true
+			}
+		});
+	</pre>
+	<pre>
+		function extend(ChildClass, ParentClass) {
+			ChildClass.prototype = new ParentClass();
+			ChildClass.prototype.constructor = ChildClass;
+		}
+	</pre>
+</div>

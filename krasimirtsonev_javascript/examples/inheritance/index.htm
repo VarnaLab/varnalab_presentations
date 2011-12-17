@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="imagetoolbar" content="no" />
+		<meta name="author" content="" />
+		<meta name="copyright" content="" />
+		<meta name="robots" content="follow,index" />
+		
+		<meta name="keywords" content="" lang="en-us" />
+		<meta name="description" content="" />
+		<title>JavaScript Presentation</title>
+
+		<script type="text/javascript" language="javascript" src="../../js/jquery-1.6.3.min.js"></script>
+		<script type="text/javascript" language="javascript">
+		
+			function extend(Child, Parent) {
+				var F = function(){};
+				F.prototype = Parent.prototype;
+				Child.prototype = new F();
+				Child.prototype.constructor = Child;
+				Child.uber = Parent.prototype;
+			}
+			
+			var Shape = function() {
+				this.name = "shape";
+			};
+			Shape.prototype = {
+				getName:function() {
+					return this.name;
+				}
+			};
+			var Rect = function () {
+				this.name = "rect";
+			};
+			extend(Rect, Shape);
+			
+			var s = new Shape();
+			var r = new Rect();
+			
+			
+		</script>
+		
+	</head>
+	<body>
+		
+	</body>
+</html>

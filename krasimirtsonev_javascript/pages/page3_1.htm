@@ -1,0 +1,47 @@
+<div class="page">
+	<h1>3.1. Що е то обект (prototype, prototype chain)</h1>
+	<h2>Primitive Data Types</h2>
+	<pre>
+		var isProgrammer = false; // boolean
+		var age = 25; // number
+		var name = "John Black"; // string
+		var job; // undefined
+		var salary = null; // променливата е дефинирана но нейната стойност е "нищо"
+		
+	</pre>
+	<h2>Other types</h2>
+	<pre>
+		var devs = new Array(); // array
+		var sales = [], designes = []; // array
+		
+		var team = new Object(); // object
+		team.devs = devs;
+		team.sales = sales;
+		team.designes = designes;
+		team.status = new Object();
+		team.retire = function() { };
+		var team = { devs:[], sales:[], designes:[] } // object
+	</pre>
+	<h2>__proto__</h2>
+	<pre>
+		var product = {};
+		product.__proto__...
+	</pre>
+	<img src="pics/proto.jpg"/>
+	<pre>
+		function Shape() {
+			
+		};
+		var s = new Shape();
+	</pre>
+	<img src="pics/proto1.jpg"/>
+	<pre>
+		function Shape() {
+			this.toString = function() {
+				return "жаба скрипт";
+			};
+		};
+		var s = new Shape();
+	</pre>
+	<img src="pics/proto2.jpg"/>
+</div>
